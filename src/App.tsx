@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Activity } from 'lucide-react';
 import { Header } from './components/Header';
 import { HeroHome } from './components/HeroHome';
 import { AuthView } from './components/AuthView';
@@ -22,122 +23,45 @@ import {
   Language 
 } from './types';
 
-// Default initial clinical assessment report so the user can immediately test
-// the Arduino connection and see the full report right away!
-const INITIAL_DEMO_REPORT: AssessmentReport = {
-  id: 'RPT-2026-1030',
-  date: new Date().toISOString(),
-  patientName: 'أحمد عبد الله القحطاني',
-  patientId: 'PT-1042',
-  patientAge: 42,
-  patientGender: 'male',
-  doctorName: 'د. محمد أحمد',
-  exerciseResults: [
-    {
-      exerciseId: 'eyebrows',
-      symmetryScore: 65,
-      leftMovement: 45,
-      rightMovement: 90,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'eyes',
-      symmetryScore: 70,
-      leftMovement: 50,
-      rightMovement: 92,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'smile',
-      symmetryScore: 58,
-      leftMovement: 38,
-      rightMovement: 95,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'cheeks',
-      symmetryScore: 62,
-      leftMovement: 42,
-      rightMovement: 88,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'lips',
-      symmetryScore: 68,
-      leftMovement: 48,
-      rightMovement: 90,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-  ],
-  protocol: generateTherapeuticProtocol([
-    {
-      exerciseId: 'eyebrows',
-      symmetryScore: 65,
-      leftMovement: 45,
-      rightMovement: 90,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'eyes',
-      symmetryScore: 70,
-      leftMovement: 50,
-      rightMovement: 92,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'smile',
-      symmetryScore: 58,
-      leftMovement: 38,
-      rightMovement: 95,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'cheeks',
-      symmetryScore: 62,
-      leftMovement: 42,
-      rightMovement: 88,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-    {
-      exerciseId: 'lips',
-      symmetryScore: 68,
-      leftMovement: 48,
-      rightMovement: 90,
-      affectedSide: 'left',
-      completedAt: new Date().toISOString(),
-    },
-  ]),
-  notes: 'المريض يعاني من شلل العصب السابع المحيطي (Bell\'s Palsy) في الجهة اليسرى منذ 12 يوماً. يستجيب جيداً للتحفيز الكهربائي والليزر بالقناع الذكي.',
-};
-
 export default function App() {
   const [lang, setLang] = useState<Language>('ar');
   const [currentTab, setCurrentTab] = useState<
     'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask'
   >('home');
+  
+  // Real authenticated doctor account - strictly null by default until doctor logs in
   const [doctorName, setDoctorName] = useState<string | null>(() => {
     try {
       const stored = localStorage.getItem('auth_doctor');
       if (stored) {
         const parsed = JSON.parse(stored);
-        return parsed.name || null;
+        if (parsed && typeof parsed.name === 'string' && parsed.name.trim() && parsed.name !== 'د. محمد أحمد') {
+          return parsed.name.trim();
+        }
       }
     } catch (e) {}
-    return 'د. محمد أحمد';
+    return null;
   });
-  const [activeReport, setActiveReport] = useState<AssessmentReport>(INITIAL_DEMO_REPORT);
+
+  const [activeReport, setActiveReport] = useState<AssessmentReport | null>(null);
   const [arduinoStatus, setArduinoStatus] = useState<ArduinoConnectionStatus>(arduinoService.getStatus());
   const [connectionType, setConnectionType] = useState<ConnectionType>(arduinoService.getConnectionType());
-  const [activePatientName, setActivePatientName] = useState<string>('أحمد عبد الله القحطاني');
+  const [activePatientName, setActivePatientName] = useState<string>('');
+
+  // Purge any legacy demo mock data or default demo doctor
+  useEffect(() => {
+    try {
+      localStorage.removeItem('real_patient_records');
+      const stored = localStorage.getItem('auth_doctor');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.name === 'د. محمد أحمد') {
+          localStorage.removeItem('auth_doctor');
+          setDoctorName(null);
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   // Sync RTL and lang attribute with html element
   useEffect(() => {
@@ -159,11 +83,11 @@ export default function App() {
     const newReport: AssessmentReport = {
       id: `RPT-${Date.now().toString().slice(-6)}`,
       date: new Date().toISOString(),
-      patientName: activePatientName,
+      patientName: activePatientName || (lang === 'ar' ? 'مريض جديد' : 'New Patient'),
       patientId: `PT-${Math.floor(1000 + Math.random() * 9000)}`,
       patientAge: 35,
       patientGender: 'male',
-      doctorName: doctorName || (lang === 'ar' ? 'د. محمد أحمد' : 'Dr. Mohammed Ahmed'),
+      doctorName: doctorName || (lang === 'ar' ? 'طبيب معالج' : 'Attending Physician'),
       exerciseResults: results,
       protocol,
     };
@@ -171,9 +95,43 @@ export default function App() {
     setCurrentTab('report');
   };
 
+  const [pendingTargetTab, setPendingTargetTab] = useState<
+    'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | null
+  >(null);
+
+  // Gated action handler: if not logged in, any button click routes to login first
+  const requireAuthAndNavigate = (
+    targetTab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask'
+  ) => {
+    if (targetTab === 'home') {
+      setCurrentTab('home');
+      return;
+    }
+    if (targetTab === 'auth') {
+      setCurrentTab('auth');
+      return;
+    }
+    // If user is not logged in, show login page and remember target
+    if (!doctorName) {
+      setPendingTargetTab(targetTab);
+      setCurrentTab('auth');
+      return;
+    }
+    // Already logged in: directly go to target
+    setCurrentTab(targetTab);
+  };
+
   const handleStartExamForPatient = (patient: any) => {
     setActivePatientName(patient.name);
-    setCurrentTab('assessment');
+    requireAuthAndNavigate('assessment');
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('auth_doctor');
+    } catch (e) {}
+    setDoctorName(null);
+    setCurrentTab('home');
   };
 
   return (
@@ -182,14 +140,14 @@ export default function App() {
       {/* Header matching user screenshots */}
       <Header
         currentTab={currentTab as any}
-        setCurrentTab={setCurrentTab as any}
+        setCurrentTab={(tab) => requireAuthAndNavigate(tab as any)}
         lang={lang}
         setLang={setLang}
         arduinoStatus={arduinoStatus}
         connectionType={connectionType}
-        onOpenArduinoModal={() => setCurrentTab('arduino')}
+        onOpenArduinoModal={() => requireAuthAndNavigate('arduino')}
         doctorName={doctorName}
-        onLogout={() => setDoctorName(null)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -197,10 +155,10 @@ export default function App() {
         {currentTab === 'home' && (
           <HeroHome
             lang={lang}
-            onStartExam={() => setCurrentTab('assessment')}
-            onViewPatients={() => setCurrentTab('patients')}
-            onOpenArduino={() => setCurrentTab('arduino')}
-            onViewPatentMask={() => setCurrentTab('patent_mask')}
+            onStartExam={() => requireAuthAndNavigate('assessment')}
+            onViewPatients={() => requireAuthAndNavigate('patients')}
+            onOpenArduino={() => requireAuthAndNavigate('arduino')}
+            onViewPatentMask={() => requireAuthAndNavigate('patent_mask')}
             arduinoStatus={arduinoStatus}
           />
         )}
@@ -217,16 +175,16 @@ export default function App() {
           <DiagnosticReport
             lang={lang}
             report={activeReport}
-            onRetakeExam={() => setCurrentTab('assessment')}
-            onOpenArduino={() => setCurrentTab('arduino')}
-            onSaveToRegistry={() => setCurrentTab('patients')}
+            onRetakeExam={() => requireAuthAndNavigate('assessment')}
+            onOpenArduino={() => requireAuthAndNavigate('arduino')}
+            onSaveToRegistry={() => requireAuthAndNavigate('patients')}
           />
         )}
 
         {currentTab === 'arduino' && (
           <ArduinoConnector
             lang={lang}
-            onViewPatentMask={() => setCurrentTab('patent_mask')}
+            onViewPatentMask={() => requireAuthAndNavigate('patent_mask')}
           />
         )}
 
@@ -243,9 +201,15 @@ export default function App() {
             lang={lang}
             onLoginSuccess={(name, email) => {
               setDoctorName(name);
+              // Unlock app and take user immediately to the feature they clicked
+              const nextTab = pendingTargetTab || 'home';
+              setPendingTargetTab(null);
+              setCurrentTab(nextTab);
+            }}
+            onClose={() => {
+              setPendingTargetTab(null);
               setCurrentTab('home');
             }}
-            onClose={() => setCurrentTab('home')}
           />
         )}
 

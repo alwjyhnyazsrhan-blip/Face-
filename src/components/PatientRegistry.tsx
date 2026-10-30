@@ -56,64 +56,15 @@ export const PatientRegistry: React.FC<PatientRegistryProps> = ({
   const [newGender, setNewGender] = useState<'male' | 'female'>('male');
   const [newSide, setNewSide] = useState<'left' | 'right'>('left');
 
-  // Real persistent clinical patients database
+  // Real persistent clinical patients database - starts empty until the doctor registers real patients
   const [patients, setPatients] = useState<PatientRecord[]>(() => {
     try {
-      const stored = localStorage.getItem('real_patient_records');
+      const stored = localStorage.getItem('real_patient_records_v2');
       if (stored) return JSON.parse(stored);
     } catch (e) {
       // fallback
     }
-    return [
-      {
-        id: 'PT-1042',
-        name: isArabic ? 'أحمد عبد الله القحطاني' : 'Ahmed Abdullah Al-Qahtani',
-        age: 42,
-        gender: 'male',
-        affectedSide: 'left',
-        currentGrade: 3,
-        initialGrade: 5,
-        sessionsCompleted: 14,
-        lastSessionDate: '2026-10-28',
-        symmetryHistory: [
-          { session: 1, symmetry: 32, date: '2026-09-15' },
-          { session: 5, symmetry: 46, date: '2026-09-30' },
-          { session: 10, symmetry: 62, date: '2026-10-15' },
-          { session: 14, symmetry: 74, date: '2026-10-28' },
-        ],
-      },
-      {
-        id: 'PT-1043',
-        name: isArabic ? 'فاطمة عمر الزهراني' : 'Fatima Omar Al-Zahrani',
-        age: 29,
-        gender: 'female',
-        affectedSide: 'right',
-        currentGrade: 2,
-        initialGrade: 4,
-        sessionsCompleted: 18,
-        lastSessionDate: '2026-10-29',
-        symmetryHistory: [
-          { session: 1, symmetry: 48, date: '2026-09-10' },
-          { session: 8, symmetry: 68, date: '2026-09-28' },
-          { session: 18, symmetry: 88, date: '2026-10-29' },
-        ],
-      },
-      {
-        id: 'PT-1044',
-        name: isArabic ? 'سلطان خالد الدوسري' : 'Sultan Khalid Al-Dosari',
-        age: 51,
-        gender: 'male',
-        affectedSide: 'left',
-        currentGrade: 4,
-        initialGrade: 5,
-        sessionsCompleted: 6,
-        lastSessionDate: '2026-10-25',
-        symmetryHistory: [
-          { session: 1, symmetry: 28, date: '2026-10-10' },
-          { session: 6, symmetry: 52, date: '2026-10-25' },
-        ],
-      },
-    ];
+    return [];
   });
 
   const filteredPatients = patients.filter((p) =>
@@ -140,7 +91,7 @@ export const PatientRegistry: React.FC<PatientRegistryProps> = ({
     const updated = [newRecord, ...patients];
     setPatients(updated);
     try {
-      localStorage.setItem('real_patient_records', JSON.stringify(updated));
+      localStorage.setItem('real_patient_records_v2', JSON.stringify(updated));
     } catch (e) {
       // storage unavailable
     }
@@ -178,28 +129,56 @@ export const PatientRegistry: React.FC<PatientRegistryProps> = ({
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 transform -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder={isArabic ? 'ابحث باسم المريض أو الرقم الطبي (PT-XXXX)...' : 'Search by name or medical ID...'}
-          className="w-full pr-12 pl-4 py-3 bg-white rounded-2xl border border-teal-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#0d7679] shadow-sm"
-        />
-      </div>
+      {/* Search Bar (Only shown if patients exist) */}
+      {patients.length > 0 && (
+        <div className="relative">
+          <Search className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 transform -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={isArabic ? 'ابحث باسم المريض أو الرقم الطبي (PT-XXXX)...' : 'Search by name or medical ID...'}
+            className="w-full pr-12 pl-4 py-3 bg-white rounded-2xl border border-teal-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#0d7679] shadow-sm"
+          />
+        </div>
+      )}
 
-      {/* Patients List Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredPatients.map((patient) => {
-          const currentLabel = getGradeLabel(patient.currentGrade, lang);
+      {/* Patients List Grid or Clean Empty State */}
+      {patients.length === 0 ? (
+        <div className="bg-white rounded-3xl p-10 sm:p-14 border border-teal-100 text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-3xl bg-teal-50 text-[#0d7679] flex items-center justify-center mx-auto border border-teal-100">
+            <Users className="w-8 h-8 stroke-[1.8]" />
+          </div>
+          <h3 className="text-xl font-bold text-[#14292b]">
+            {isArabic ? 'لا توجد بيانات مرضى مسجلة حالياً' : 'No Patient Records Registered Yet'}
+          </h3>
+          <p className="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+            {isArabic
+              ? 'السجل خالٍ تماماً من أي بيانات افتراضية. انقر على زر "إضافة مريض جديد" لإدخال أول مريض وبدء التقييم الحقيقي.'
+              : 'The registry is clean with no dummy records. Click "Add New Patient" to register a real patient.'}
+          </p>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-6 py-3 rounded-2xl bg-[#0d7679] hover:bg-[#0a5e61] text-white text-xs font-black shadow-md shadow-teal-900/15 inline-flex items-center gap-2 active:scale-98 transition-all"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>{isArabic ? 'إضافة مريض جديد الآن' : 'Add Patient Now'}</span>
+          </button>
+        </div>
+      ) : filteredPatients.length === 0 ? (
+        <div className="bg-white rounded-3xl p-8 border border-teal-100 text-center text-sm text-gray-500 font-bold">
+          {isArabic ? 'لم يتم العثور على نتائج تطابق البحث' : 'No matching patient records found'}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredPatients.map((patient) => {
+            const currentLabel = getGradeLabel(patient.currentGrade, lang);
 
-          return (
-            <div
-              key={patient.id}
-              className="bg-white rounded-3xl p-5 sm:p-6 border border-teal-100 shadow-sm hover:shadow-md transition-all space-y-4"
-            >
+            return (
+              <div
+                key={patient.id}
+                className="bg-white rounded-3xl p-5 sm:p-6 border border-teal-100 shadow-sm hover:shadow-md transition-all space-y-4"
+              >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -268,6 +247,7 @@ export const PatientRegistry: React.FC<PatientRegistryProps> = ({
           );
         })}
       </div>
+      )}
 
       {/* Add Patient Modal */}
       {showAddModal && (

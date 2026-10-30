@@ -27,7 +27,7 @@ import { AssessmentReport, ExerciseResult, Language, TherapeuticProtocol } from 
 
 interface DiagnosticReportProps {
   lang: Language;
-  report: AssessmentReport;
+  report: AssessmentReport | null;
   onRetakeExam: () => void;
   onOpenArduino: () => void;
   onSaveToRegistry: () => void;
@@ -41,11 +41,41 @@ export const DiagnosticReport: React.FC<DiagnosticReportProps> = ({
   onSaveToRegistry,
 }) => {
   const isArabic = lang === 'ar';
-  const { protocol, exerciseResults } = report;
-  const gradeLabel = getGradeLabel(protocol.houseBrackmannGrade, lang);
 
   const [isSendingToArduino, setIsSendingToArduino] = useState(false);
   const [arduinoSentSuccess, setArduinoSentSuccess] = useState(false);
+
+  if (!report) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12 text-center">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-teal-100 shadow-sm space-y-6">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-teal-50 text-[#0d7679] flex items-center justify-center border border-teal-100">
+            <FileText className="w-8 h-8 stroke-[2]" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl sm:text-2xl font-black text-[#14292b]">
+              {isArabic ? 'لا يوجد تقرير فحص حالي بعد' : 'No Active Assessment Report Yet'}
+            </h2>
+            <p className="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+              {isArabic
+                ? 'قم بإجراء فحص الكاميرا للمريض لتحليل حركة وتناظر عضلات الوجه وتقدير درجة هاوس-براكمان الإكلينيكية تلقائياً وتوليد بروتوكول القناع الذكي.'
+                : 'Perform a camera assessment to analyze facial muscle symmetry, determine House-Brackmann grade, and generate smart mask dosages.'}
+            </p>
+          </div>
+          <button
+            onClick={onRetakeExam}
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0d7679] hover:bg-[#0a5e61] text-white font-extrabold text-sm shadow-md shadow-teal-900/15 transition-all active:scale-95"
+          >
+            <Activity className="w-4 h-4" />
+            <span>{isArabic ? 'بدء فحص جديد بالكاميرا' : 'Start Camera Examination'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { protocol, exerciseResults } = report;
+  const gradeLabel = getGradeLabel(protocol.houseBrackmannGrade, lang);
 
   const handleSendToArduino = async () => {
     setIsSendingToArduino(true);

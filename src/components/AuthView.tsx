@@ -84,7 +84,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ lang, onLoginSuccess, onClos
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder={isArabic ? 'د. محمد أحمد' : 'Dr. Mohammed Ahmed'}
+                  placeholder={isArabic ? 'الاسم واللقب الطبي (مثال: د. عبد الله)' : 'Full Name & Title (e.g. Dr. Alex)'}
                   required
                   className="w-full px-4 py-3 bg-[#f6faf9] border border-teal-100 rounded-2xl text-[#14292b] text-sm focus:outline-none focus:ring-2 focus:ring-[#0d7679] focus:bg-white transition-all shadow-inner"
                 />
@@ -164,6 +164,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ lang, onLoginSuccess, onClos
               </button>
             )}
           </div>
+
+          {onClose && (
+            <div className="mt-5 pt-4 border-t border-teal-50 text-center">
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-xs font-bold text-gray-500 hover:text-[#0d7679] transition-colors"
+              >
+                {isArabic ? '← العودة للصفحة الرئيسية' : '← Back to Home Page'}
+              </button>
+            </div>
+          )}
 
         </div>
 
