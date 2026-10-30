@@ -1,0 +1,257 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useState } from 'react';
+import { 
+  Layers, 
+  Info, 
+  Eye, 
+  Cpu, 
+  Zap, 
+  Sparkles, 
+  ShieldCheck, 
+  Sliders, 
+  ArrowRight, 
+  ArrowLeft,
+  CheckCircle2,
+  ZoomIn,
+  Download,
+  Maximize2
+} from 'lucide-react';
+import { Language } from '../types';
+
+interface PatentMaskViewerProps {
+  lang: Language;
+  onOpenArduino: () => void;
+  onBack: () => void;
+}
+
+export const PatentMaskViewer: React.FC<PatentMaskViewerProps> = ({
+  lang,
+  onOpenArduino,
+  onBack,
+}) => {
+  const isArabic = lang === 'ar';
+  const [activeFigure, setActiveFigure] = useState<1 | 2 | 3 | 6>(1);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // Exact image paths uploaded by the user, displayed without any modification
+  const figures = {
+    1: {
+      number: 1,
+      imageSrc: '/assets/aistudio/IMG_20261030_174407_14f5e28b.jpg',
+      titleAr: 'الشكل (١) - المنظور الأمامي للقناع العلاجي الذكي',
+      titleEn: 'Figure (1) - Front Isometric View of Smart Mask',
+      descriptionAr: 'المخطط الهندسي الأصلي للشكل (١): يبين الهيكل الخارجي للقناع المكون من نصفي الوجه (١٠١، ١٠٢) مع حزام التثبيت (١٠٦)، وزر الطاقة (١٠٣)، ومصفوفة أقطاب التحفيز الكهربائي (١١٥)، وثقوب الليزر (١١٤)، وحماية العينين (١٠٤).',
+      descriptionEn: 'Original engineering blueprint of Figure (1): Shows bilateral face structure (101, 102), retaining strap (106), power switch (103), electrodes (115), and laser matrix (114).',
+      callouts: [
+        '١٠٠ - الهيكل العام للقناع العلاجي',
+        '١٠١ - النصف الأيمن للقناع',
+        '١٠٢ - النصف الأيسر للقناع',
+        '١٠٣ - مفتاح التشغيل والإيقاف',
+        '١٠٤ - نظارة حماية العينين المدمجة',
+        '١٠٦ - حزام تثبيت الرأس القابل للضبط',
+        '١٠٧ - وحدة وهوائي الاتصال اللاسلكي (Bluetooth)',
+        '١١٤ - مصفوفة باعثات الليزر العلاجي (650nm)',
+        '١١٥ - أقطاب التحفيز العصبي الموضعي (Motor Points)',
+      ],
+    },
+    2: {
+      number: 2,
+      imageSrc: '/assets/aistudio/IMG_20261030_174431_71241614.jpg',
+      titleAr: 'الشكل (٢) - المنظور الداخلي الملامس لبشرة الوجه',
+      titleEn: 'Figure (2) - Internal Skin-Contact View',
+      descriptionAr: 'المخطط الهندسي الأصلي للشكل (٢): يوضح الوجه الداخلي الملامس للجلد والمزود بمصفوفات أقطاب التلامس التوصيلية (١٠٨، ١٠٩، ١١٠)، ومشبك التثبيت والإحكام السريع (١١١).',
+      descriptionEn: 'Original blueprint of Figure (2): Shows internal skin contact face with conductive stimulation pads (108, 109, 110) and quick-release buckle (111).',
+      callouts: [
+        '١٠٨ - مصفوفة أقطاب الجبهة والعين العلوية',
+        '١٠٩ - مصفوفة ثقوب إشعاع الليزر البارد المباشر للجلد',
+        '١١٠ - أقطاب الوجنة والخد ومحيط الفم',
+        '١١١ - مشبك التثبيت وإحكام شد الحزام',
+      ],
+    },
+    3: {
+      number: 3,
+      imageSrc: '/assets/aistudio/IMG_20261030_174449_086d17f5.jpg',
+      titleAr: 'الشكل (٣) - وحدة التحكم الإلكترونية ومنفذ الأردوينو',
+      titleEn: 'Figure (3) - Microcontroller Hub & Arduino Connector',
+      descriptionAr: 'المخطط الهندسي الأصلي للشكل (٣): يوضح موقع لوحة التحكم والدوائر الإلكترونية (١١٢) ومقبس الربط الخارجي (١١٣) المخصص للتوصيل مع كابل الأردوينو ومصدر الطاقة ومولد النبضات.',
+      descriptionEn: 'Original blueprint of Figure (3): Highlights the microcontroller module (112) and interface port (113) for direct link to Arduino / ESP32 and power units.',
+      callouts: [
+        '١١٢ - لوحة المعالجة والدوائر الإلكترونية (ESP32 / Arduino)',
+        '١١٣ - مقبس التوصيل التسلسلي ومصدر التغذية (Serial / USB)',
+        'توصيل موزع CD74HC4067 ومولد نبضات TENS والعازل PC817',
+      ],
+    },
+    6: {
+      number: 6,
+      imageSrc: '/assets/aistudio/IMG_20261030_174509_ffe01999.jpg',
+      titleAr: 'الشكل (٦) - التوزيع التشريحي لنقاط التحفيز والليزر',
+      titleEn: 'Figure (6) - Anatomical Electrode & Laser Distribution Map',
+      descriptionAr: 'المخطط الهندسي الأصلي للشكل (٦): يبين التوزيع التشريحي الدقيق لنقاط التحفيز الكهربائي (١١٥) وبواعث الليزر (١١٤) المتطابقة مع الفروع الخمسة للعصب الوجهي السابع (الصدغي، الوجني، الشدقي، الفكي الهامشي، العنقي).',
+      descriptionEn: 'Original blueprint of Figure (6): Anatomical mapping of stimulation electrode nodes (115) and laser points (114) precisely aligned with the 5 facial nerve branches.',
+      callouts: [
+        '١١٥ - نقاط التحفيز الكهربائي المتصلة بموزع CD74HC4067 (من C0 إلى C15)',
+        '١١٤ - مصفوفة بواعث الليزر 650nm المتصلة بموديول IRF520 MOSFET',
+        'تغطية العصب الصدغي (Temporal) ➔ رفع الحاجب والجبهة',
+        'تغطية العصب الوجني (Zygomatic) ➔ إغلاق العين والجفن',
+        'تغطية العصب الشدقي (Buccal) ➔ عضلات الابتسامة ونفخ الخد',
+        'تغطية العصب الفكي الهامشي (Marginal) ➔ محيط الفم والشفاه',
+        'تغطية العصب العنقي (Cervical) ➔ العضلة الجلدية للعنق (Platysma)',
+      ],
+    },
+  };
+
+  const currentFig = figures[activeFigure];
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      
+      {/* Top Header */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-teal-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <button
+            onClick={onBack}
+            className="text-xs font-bold text-[#0d7679] hover:underline flex items-center gap-1 mb-1.5"
+          >
+            {isArabic ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+            <span>{isArabic ? 'العودة للرئيسية' : 'Back to Home'}</span>
+          </button>
+          <h1 className="text-2xl font-black text-[#14292b]">
+            {isArabic ? 'مخططات براءة اختراع القناع الذكي الأصلية' : 'Original Patent Blueprint Drawings'}
+          </h1>
+          <p className="text-xs text-gray-500 font-medium mt-0.5">
+            {isArabic
+              ? 'الرسومات الهندسية المعتمدة كما هي بدون أي تعديل (الأشكال ١، ٢، ٣، ٦)'
+              : 'Official patent engineering figures shown untouched as uploaded'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsFullScreen(true)}
+            className="px-4 py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all flex items-center gap-1.5"
+            title={isArabic ? 'عرض بكامل الشاشة' : 'Full Screen'}
+          >
+            <Maximize2 className="w-4 h-4" />
+            <span className="hidden sm:inline">{isArabic ? 'تكبير' : 'Enlarge'}</span>
+          </button>
+
+          <button
+            onClick={onOpenArduino}
+            className="px-5 py-2.5 rounded-2xl bg-[#0d7679] hover:bg-[#0a5e61] text-white text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5"
+          >
+            <Cpu className="w-4 h-4 text-emerald-300" />
+            <span>{isArabic ? 'التحكم بالأردوينو' : 'Arduino Hub'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Figures Switcher Tabs */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {([1, 2, 3, 6] as const).map((figNum) => {
+          const fig = figures[figNum];
+          return (
+            <button
+              key={figNum}
+              onClick={() => setActiveFigure(figNum)}
+              className={`p-3 rounded-2xl font-black text-xs transition-all text-center border flex flex-col items-center gap-2 ${
+                activeFigure === figNum
+                  ? 'bg-[#0d7679] text-white border-[#0d7679] shadow-md shadow-teal-900/15'
+                  : 'bg-white text-gray-700 border-teal-100 hover:bg-teal-50'
+              }`}
+            >
+              <div className="w-full h-16 rounded-xl overflow-hidden bg-white border border-gray-100 flex items-center justify-center p-1">
+                <img
+                  src={fig.imageSrc}
+                  alt={`الشكل ${figNum}`}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span>{isArabic ? `الشكل (${figNum})` : `Figure (${figNum})`}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Main Figure Showcase Card - Displaying exact untouched image */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-teal-100 shadow-md space-y-6">
+        
+        <div>
+          <span className="text-xs font-bold text-[#0d7679] bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+            {isArabic ? `المخطط الأصلي المعتمد - الشكل (${currentFig.number})` : `Official Patent Blueprint - Figure (${currentFig.number})`}
+          </span>
+          <h2 className="text-xl sm:text-2xl font-black text-[#14292b] mt-2">
+            {isArabic ? currentFig.titleAr : currentFig.titleEn}
+          </h2>
+          <p className="text-sm text-gray-600 font-medium leading-relaxed mt-1">
+            {isArabic ? currentFig.descriptionAr : currentFig.descriptionEn}
+          </p>
+        </div>
+
+        {/* Exact Image Display Container */}
+        <div className="relative w-full rounded-2xl bg-white border-2 border-teal-200/80 p-4 sm:p-8 flex items-center justify-center overflow-hidden shadow-inner group">
+          <img
+            src={currentFig.imageSrc}
+            alt={currentFig.titleAr}
+            className="max-h-[520px] w-auto max-w-full object-contain transition-transform group-hover:scale-[1.02]"
+          />
+
+          <button
+            onClick={() => setIsFullScreen(true)}
+            className="absolute bottom-4 left-4 bg-black/70 hover:bg-black/90 text-white p-2.5 rounded-xl text-xs font-bold backdrop-blur-sm transition-all flex items-center gap-1.5 shadow-md"
+          >
+            <ZoomIn className="w-4 h-4" />
+            <span>{isArabic ? 'عرض الصورة بالحجم الكامل' : 'View Full Image'}</span>
+          </button>
+        </div>
+
+        {/* Technical Callouts Grid */}
+        <div className="space-y-3 pt-2">
+          <h4 className="text-sm font-extrabold text-[#14292b]">
+            {isArabic ? 'العناصر الهندسية المحددة في هذا الشكل:' : 'Key Engineering Elements in this Figure:'}
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {currentFig.callouts.map((item, idx) => (
+              <div key={idx} className="bg-[#f7faf9] rounded-xl p-3 border border-teal-100 flex items-center gap-2.5 text-xs font-bold text-gray-700">
+                <CheckCircle2 className="w-4 h-4 text-[#0d7679] shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* Full-screen Lightbox Modal */}
+      {isFullScreen && (
+        <div 
+          onClick={() => setIsFullScreen(false)}
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 cursor-pointer"
+        >
+          <div className="relative max-w-5xl max-h-[90vh] bg-white rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col items-center overflow-auto">
+            <div className="w-full flex items-center justify-between pb-3 border-b border-gray-100 mb-3">
+              <span className="text-sm font-black text-[#0d7679]">
+                {isArabic ? currentFig.titleAr : currentFig.titleEn}
+              </span>
+              <button
+                onClick={() => setIsFullScreen(false)}
+                className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl font-bold text-gray-700"
+              >
+                {isArabic ? 'إغلاق (✕)' : 'Close (✕)'}
+              </button>
+            </div>
+            <img
+              src={currentFig.imageSrc}
+              alt={currentFig.titleAr}
+              className="max-h-[75vh] w-auto max-w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};

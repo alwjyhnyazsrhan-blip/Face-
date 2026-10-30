@@ -1,0 +1,6 @@
+{
+  "name": "تقييم العصب الوجهي | Facial Nerve Assessment & Arduino",
+  "description": "نظام تقييم ذكي لشلل الوجه النصفي وتحديد درجة هاوس-براكمان واقتراح بروتوكول العلاج والربط الفوري مع أجهزة الأردوينو والقناع العلاجي",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
