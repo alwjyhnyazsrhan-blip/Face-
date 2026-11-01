@@ -28,6 +28,7 @@ interface HeroHomeProps {
   onViewPatients: () => void;
   onOpenArduino: () => void;
   onViewPatentMask: () => void;
+  onOpenMotorPoints?: () => void;
   arduinoStatus: ArduinoConnectionStatus;
 }
 
@@ -37,6 +38,7 @@ export const HeroHome: React.FC<HeroHomeProps> = ({
   onViewPatients,
   onOpenArduino,
   onViewPatentMask,
+  onOpenMotorPoints,
   arduinoStatus,
 }) => {
   const isArabic = lang === 'ar';
@@ -262,6 +264,16 @@ export const HeroHome: React.FC<HeroHomeProps> = ({
             </div>
 
             <div className="flex flex-wrap gap-2.5 shrink-0">
+              {onOpenMotorPoints && (
+                <button
+                  onClick={onOpenMotorPoints}
+                  className="px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  <Zap className="w-4 h-4 fill-current" />
+                  <span>{isArabic ? 'نقاط العصب وجلسة العلاج' : 'Motor Points & Therapy'}</span>
+                </button>
+              )}
+
               <button
                 onClick={onViewPatentMask}
                 className="px-4 py-2.5 rounded-2xl bg-teal-50 hover:bg-teal-100 text-[#0d7679] font-bold text-sm border border-teal-200 transition-all flex items-center gap-1.5"
@@ -289,12 +301,12 @@ export const HeroHome: React.FC<HeroHomeProps> = ({
               className="md:col-span-5 bg-white rounded-2xl p-4 border border-teal-100 flex flex-col items-center justify-center cursor-pointer hover:border-teal-300 hover:shadow-md transition-all group"
             >
               <img
-                src="/assets/aistudio/IMG_20261030_174407_14f5e28b.jpg"
+                src="/assets/aistudio/IMG_20261101_232643_19cd98f2.jpg"
                 alt="الشكل 1 - القناع العلاجي الذكي"
                 className="max-h-56 w-auto object-contain group-hover:scale-105 transition-transform"
               />
               <span className="text-[11px] font-extrabold text-[#0d7679] mt-2 group-hover:underline">
-                {isArabic ? 'الشكل (١) - المخطط الأصلي المعتمد للقناع' : 'Figure (1) - Official Mask Blueprint'}
+                {isArabic ? 'الشكل (١) - المخطط الأصلي الملون المعتمد للقناع' : 'Figure (1) - Official Colored Mask Blueprint'}
               </span>
             </div>
 

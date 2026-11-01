@@ -13,6 +13,7 @@ import { DiagnosticReport } from './components/DiagnosticReport';
 import { ArduinoConnector } from './components/ArduinoConnector';
 import { PatientRegistry } from './components/PatientRegistry';
 import { PatentMaskViewer } from './components/PatentMaskViewer';
+import { MotorPointsTherapy } from './components/MotorPointsTherapy';
 import { arduinoService } from './services/arduinoService';
 import { generateTherapeuticProtocol } from './services/assessmentService';
 import { 
@@ -26,7 +27,7 @@ import {
 export default function App() {
   const [lang, setLang] = useState<Language>('ar');
   const [currentTab, setCurrentTab] = useState<
-    'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask'
+    'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | 'motor_points'
   >('home');
   
   // Real authenticated doctor account - strictly null by default until doctor logs in
@@ -96,12 +97,12 @@ export default function App() {
   };
 
   const [pendingTargetTab, setPendingTargetTab] = useState<
-    'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | null
+    'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | 'motor_points' | null
   >(null);
 
   // Gated action handler: if not logged in, any button click routes to login first
   const requireAuthAndNavigate = (
-    targetTab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask'
+    targetTab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | 'motor_points'
   ) => {
     if (targetTab === 'home') {
       setCurrentTab('home');
@@ -159,6 +160,7 @@ export default function App() {
             onViewPatients={() => requireAuthAndNavigate('patients')}
             onOpenArduino={() => requireAuthAndNavigate('arduino')}
             onViewPatentMask={() => requireAuthAndNavigate('patent_mask')}
+            onOpenMotorPoints={() => requireAuthAndNavigate('motor_points')}
             arduinoStatus={arduinoStatus}
           />
         )}
@@ -178,6 +180,16 @@ export default function App() {
             onRetakeExam={() => requireAuthAndNavigate('assessment')}
             onOpenArduino={() => requireAuthAndNavigate('arduino')}
             onSaveToRegistry={() => requireAuthAndNavigate('patients')}
+            onStartTherapySession={() => requireAuthAndNavigate('motor_points')}
+          />
+        )}
+
+        {currentTab === 'motor_points' && (
+          <MotorPointsTherapy
+            lang={lang}
+            affectedSide={activeReport?.protocol.affectedSide || 'left'}
+            protocol={activeReport?.protocol}
+            onOpenPatentMask={() => requireAuthAndNavigate('patent_mask')}
           />
         )}
 

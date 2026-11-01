@@ -31,6 +31,7 @@ interface DiagnosticReportProps {
   onRetakeExam: () => void;
   onOpenArduino: () => void;
   onSaveToRegistry: () => void;
+  onStartTherapySession?: () => void;
 }
 
 export const DiagnosticReport: React.FC<DiagnosticReportProps> = ({
@@ -39,6 +40,7 @@ export const DiagnosticReport: React.FC<DiagnosticReportProps> = ({
   onRetakeExam,
   onOpenArduino,
   onSaveToRegistry,
+  onStartTherapySession,
 }) => {
   const isArabic = lang === 'ar';
 
@@ -232,28 +234,79 @@ export const DiagnosticReport: React.FC<DiagnosticReportProps> = ({
             </h3>
           </div>
 
-          {/* Master Button to trigger Arduino */}
-          <div className="flex flex-col sm:items-end">
+          {/* Master Buttons: Launch Therapy Session or Send Protocol */}
+          <div className="flex flex-wrap items-center gap-2 sm:self-auto">
+            {onStartTherapySession && (
+              <button
+                onClick={onStartTherapySession}
+                className="px-5 py-3.5 rounded-2xl bg-[#0d7679] hover:bg-[#0a5e61] text-white font-black text-sm shadow-md shadow-teal-900/15 active:scale-98 transition-all flex items-center gap-2"
+              >
+                <Zap className="w-5 h-5 text-amber-300 fill-current" />
+                <span>{isArabic ? 'بدء جلسة العلاج بالقناع (Motor Points)' : 'Start Motor Points Therapy'}</span>
+              </button>
+            )}
+
             <button
               onClick={handleSendToArduino}
               disabled={isSendingToArduino}
-              className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#0d7679] to-[#085a5d] hover:from-[#0a5e61] hover:to-[#064245] text-white font-black text-sm shadow-md shadow-teal-900/20 active:scale-98 transition-all flex items-center gap-2"
+              className="px-5 py-3.5 rounded-2xl bg-teal-50 hover:bg-teal-100 text-[#0d7679] border border-teal-200 font-bold text-sm shadow-sm active:scale-98 transition-all flex items-center gap-2"
             >
-              <Cpu className="w-5 h-5 text-emerald-300" />
+              <Cpu className="w-5 h-5 text-emerald-600" />
               <span>
                 {isSendingToArduino
-                  ? isArabic ? 'جارٍ الإرسال للأردوينو...' : 'Transmitting...'
-                  : isArabic ? 'إرسال البروتوكول للأردوينو وتشغيل القناع' : 'Send to Arduino & Start Mask'}
+                  ? isArabic ? 'جارٍ الإرسال...' : 'Sending...'
+                  : isArabic ? 'إرسال للأردوينو' : 'Send to Arduino'}
               </span>
             </button>
 
             {arduinoSentSuccess && (
-              <span className="text-xs font-bold text-emerald-600 mt-1.5 flex items-center gap-1 animate-bounce">
+              <span className="w-full text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1 animate-bounce">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>{isArabic ? 'تم إرسال الأوامر وتشغيل القناع بنجاح!' : 'Commands transmitted to Arduino successfully!'}</span>
               </span>
             )}
           </div>
+        </div>
+
+        {/* Anatomical Facial Motor Points Banner matching user upload */}
+        <div className="bg-[#f0f9f8] rounded-2xl p-4 sm:p-5 border border-teal-200 flex flex-col md:flex-row items-center gap-5">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-white border border-teal-100 shadow-sm shrink-0 flex items-center justify-center p-1">
+            <img 
+              src="/assets/aistudio/IMG_20261031_201132_d8320459.jpg" 
+              alt="Facial Motor Points" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          <div className="space-y-1.5 flex-1 text-center md:text-right">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-teal-200 text-[#0d5e5e] text-xs font-black">
+                {isArabic ? 'نقاط التقاء العصب والعضلات (Motor Points)' : 'Anatomical Motor Points'}
+              </span>
+              <span className="text-xs font-bold text-gray-500">
+                {isArabic ? `الجهة المستهدفة: ${protocol.affectedSide === 'left' ? 'اليسرى (S)' : 'اليمنى (D)'}` : `Target: ${protocol.affectedSide.toUpperCase()}`}
+              </span>
+            </div>
+            <h4 className="text-base font-extrabold text-[#14292b]">
+              {isArabic 
+                ? 'توزيع التحفيز الكهربائي والليزر على النقاط الست في القناع' 
+                : '6 Motor Points EMS & Laser Distribution'}
+            </h4>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              {isArabic
+                ? 'يتم توجيه نبضات التحفيز عبر موزع 16 قناة (CD74HC4067) ومقاومة MCP4131 طبقاً لدرجة الإصابة لنقاط الجبهة (1)، العين (2)، رافعة الشفة (3)، الوجنة (4)، الفم (5)، والذقن (6).'
+                : 'Stimulation is routed via 16-channel MUX (CD74HC4067) to points 1 (frontalis), 2 (orbicularis oculi), 3 (nasalis), 4 (zygomatici), 5 (orbicularis oris), 6 (depressor/mentalis).'}
+            </p>
+          </div>
+
+          {onStartTherapySession && (
+            <button
+              onClick={onStartTherapySession}
+              className="shrink-0 px-4 py-2.5 rounded-xl bg-[#0d7679] hover:bg-[#0a5e61] text-white text-xs font-black shadow-sm transition-all"
+            >
+              {isArabic ? 'فتح لوحة الجلسة ←' : 'Open Therapy Panel →'}
+            </button>
+          )}
         </div>
 
         {/* Detailed Dosage Parameters Grid */}

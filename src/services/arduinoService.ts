@@ -14,6 +14,8 @@ class ArduinoService {
   private reader: any = null;
   private bleDevice: any = null;
   private bleCharacteristic: any = null;
+  private ws: WebSocket | null = null;
+  private wifiIp: string = '';
 
   private telemetry: ArduinoTelemetry = {
     voltage: 0.0,
@@ -231,6 +233,71 @@ class ArduinoService {
     }
   }
 
+  // --- Real Wi-Fi Hardware Connection (ESP32 WebSocket / HTTP) ---
+  public async connectWifi(ipAddress: string, port = 81): Promise<boolean> {
+    const cleanIp = ipAddress.trim();
+    if (!cleanIp) {
+      this.addLog('system', 'خطأ: يرجى إدخال عنوان IP الخاص بـ ESP32 (مثال: 192.168.4.1 أو 192.168.1.50).');
+      return false;
+    }
+
+    this.setStatus('connecting');
+    this.connectionType = 'wifi';
+    this.wifiIp = cleanIp;
+    this.addLog('system', `جارٍ الاتصال بلوحة ESP32 عبر شبكة الـ Wi-Fi على العنوان ws://${cleanIp}:${port}/ws...`);
+
+    return new Promise((resolve) => {
+      try {
+        const socket = new WebSocket(`ws://${cleanIp}:${port}/ws`);
+        const timeout = setTimeout(() => {
+          if (socket.readyState !== WebSocket.OPEN) {
+            socket.close();
+            this.setStatus('disconnected');
+            this.addLog('system', `تعذر الوصول لـ ESP32 عبر Wi-Fi على ${cleanIp}:${port}. تأكد من اتصال هاتفك/حاسوبك بنفس شبكة الـ Wi-Fi.`);
+            resolve(false);
+          }
+        }, 5000);
+
+        socket.onopen = async () => {
+          clearTimeout(timeout);
+          this.ws = socket;
+          this.setStatus('connected');
+          this.telemetry.voltage = 5.0;
+          this.addLog('system', `تم الاتصال بنجاح بـ ESP32 عبر شبكة الـ Wi-Fi (${cleanIp})!`);
+          await this.sendCommand('PING');
+          resolve(true);
+        };
+
+        socket.onmessage = (event) => {
+          if (typeof event.data === 'string') {
+            this.handleIncomingLine(event.data.trim());
+          }
+        };
+
+        socket.onerror = (err) => {
+          clearTimeout(timeout);
+          console.warn('Wi-Fi WebSocket error:', err);
+          if (this.status !== 'connected') {
+            this.setStatus('disconnected');
+            this.addLog('system', `خطأ في اتصال Wi-Fi: تعذر الوصول إلى ${cleanIp}`);
+            resolve(false);
+          }
+        };
+
+        socket.onclose = () => {
+          if (this.status === 'connected') {
+            this.addLog('system', 'تم إغلاق اتصال شبكة Wi-Fi مع ESP32.');
+            this.disconnect();
+          }
+        };
+      } catch (err: any) {
+        this.setStatus('disconnected');
+        this.addLog('system', `خطأ في بروتوكول Wi-Fi: ${err.message}`);
+        resolve(false);
+      }
+    });
+  }
+
   // --- Real Disconnect ---
   public async disconnect() {
     try {
@@ -246,6 +313,10 @@ class ArduinoService {
         this.bleDevice.gatt.disconnect();
         this.bleDevice = null;
       }
+      if (this.ws) {
+        this.ws.close();
+        this.ws = null;
+      }
     } catch (e) {
       console.warn('Error during disconnect:', e);
     }
@@ -259,13 +330,13 @@ class ArduinoService {
     this.addLog('system', 'تم فصل الاتصال بالأردوينو.');
   }
 
-  // --- Send Real Command to Physical Arduino ---
+  // --- Send Real Command to Physical Arduino / ESP32 ---
   public async sendCommand(command: string): Promise<boolean> {
     const cleanCmd = command.trim();
     if (!cleanCmd) return false;
 
     if (this.status !== 'connected') {
-      this.addLog('system', 'تنبيه: يجب توصيل كابل الـ USB بالأردوينو أولاً لإرسال الأوامر الفيزيائية.');
+      this.addLog('system', 'تنبيه: يجب توصيل الجهاز (USB أو Bluetooth أو Wi-Fi) أولاً لإرسال الأوامر الفيزيائية.');
       return false;
     }
 
@@ -282,9 +353,12 @@ class ArduinoService {
         const encoder = new TextEncoder();
         await this.bleCharacteristic.writeValue(encoder.encode(cleanCmd + '\n'));
         return true;
+      } else if (this.connectionType === 'wifi' && this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(cleanCmd + '\n');
+        return true;
       }
     } catch (err: any) {
-      this.addLog('system', `فشل نقل البيانات لسلك الأردوينو: ${err.message}`);
+      this.addLog('system', `فشل نقل البيانات لعتاد الأردوينو: ${err.message}`);
       return false;
     }
 

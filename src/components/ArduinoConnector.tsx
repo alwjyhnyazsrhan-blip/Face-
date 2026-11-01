@@ -80,12 +80,21 @@ export const ArduinoConnector: React.FC<ArduinoConnectorProps> = ({ lang, onView
     };
   }, []);
 
+  const [wifiIp, setWifiIp] = useState('192.168.4.1');
+  const [isConnectingWifi, setIsConnectingWifi] = useState(false);
+
   const handleConnectSerial = async () => {
     await arduinoService.connectSerial(baudRate);
   };
 
   const handleConnectBluetooth = async () => {
     await arduinoService.connectBluetooth();
+  };
+
+  const handleConnectWifi = async () => {
+    setIsConnectingWifi(true);
+    await arduinoService.connectWifi(wifiIp);
+    setIsConnectingWifi(false);
   };
 
   const handleDisconnect = async () => {
@@ -179,10 +188,10 @@ export const ArduinoConnector: React.FC<ArduinoConnectorProps> = ({ lang, onView
               <>
                 <button
                   onClick={handleConnectSerial}
-                  className="px-5 py-3 rounded-2xl bg-[#0d7679] hover:bg-[#0a5e61] text-white font-extrabold text-xs shadow-md shadow-teal-900/15 transition-all flex items-center gap-2 active:scale-98"
+                  className="px-4 py-3 rounded-2xl bg-[#0d7679] hover:bg-[#0a5e61] text-white font-extrabold text-xs shadow-md shadow-teal-900/15 transition-all flex items-center gap-2 active:scale-98"
                 >
                   <Cpu className="w-4 h-4 text-emerald-300" />
-                  <span>{isArabic ? 'اتصال USB (Web Serial)' : 'Connect USB Serial'}</span>
+                  <span>{isArabic ? 'اتصال USB' : 'USB Serial'}</span>
                 </button>
 
                 <button
@@ -190,8 +199,26 @@ export const ArduinoConnector: React.FC<ArduinoConnectorProps> = ({ lang, onView
                   className="px-4 py-3 rounded-2xl bg-teal-50 hover:bg-teal-100 text-[#0d7679] font-bold text-xs border border-teal-200 transition-all flex items-center gap-2"
                 >
                   <Radio className="w-4 h-4" />
-                  <span>{isArabic ? 'بلوتوث ESP32' : 'Bluetooth BLE'}</span>
+                  <span>{isArabic ? 'بلوتوث BLE' : 'Bluetooth BLE'}</span>
                 </button>
+
+                <div className="flex items-center bg-[#f0f9f8] p-1.5 rounded-2xl border border-teal-200">
+                  <input
+                    type="text"
+                    value={wifiIp}
+                    onChange={(e) => setWifiIp(e.target.value)}
+                    placeholder="192.168.4.1"
+                    className="w-24 sm:w-28 px-2 py-1.5 bg-white rounded-xl text-xs font-mono font-bold text-gray-700 border border-teal-100 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleConnectWifi}
+                    disabled={isConnectingWifi}
+                    className="mr-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center gap-1 shadow-xs"
+                  >
+                    <Wifi className="w-3.5 h-3.5" />
+                    <span>{isConnectingWifi ? '...' : isArabic ? 'واي فاي' : 'Wi-Fi'}</span>
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -526,6 +553,27 @@ export const ArduinoConnector: React.FC<ArduinoConnectorProps> = ({ lang, onView
               <span className="text-xs font-mono font-black text-[#0d7679] w-12 text-left">
                 {mcpPotValue}/128
               </span>
+            </div>
+          </div>
+
+          {/* Motor Points Schema Diagram Banner matching user upload */}
+          <div className="bg-[#f0f9f8] p-4 rounded-2xl border border-teal-200 flex flex-col sm:flex-row items-center gap-4">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-white border border-teal-100 shrink-0 p-1 flex items-center justify-center">
+              <img
+                src="/assets/aistudio/IMG_20261031_201132_d8320459.jpg"
+                alt="Motor Points Reference"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="text-center sm:text-right space-y-1">
+              <span className="text-xs font-black text-[#0d7679]">
+                {isArabic ? 'مخطط نقاط التماس الست (1 إلى 6) ومطابقتها مع موزع الـ CD74HC4067:' : 'The 6 Facial Motor Points & CD74HC4067 MUX channels:'}
+              </span>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                {isArabic
+                  ? '1: جبهة (C0/C1) • 2: عين (C2/C3) • 3: رافعة الشفة (C4/C5) • 4: وجنة وابتسامة (C6/C7) • 5: محيط الشفاه (C8/C9) • 6: زاوية الفم والذقن (C10/C11).'
+                  : '1: Frontalis (C0/C1) • 2: Orbicularis Oculi (C2/C3) • 3: Nasalis (C4/C5) • 4: Zygomatici (C6/C7) • 5: Orbicularis Oris (C8/C9) • 6: Depressor/Mentalis (C10/C11).'}
+              </p>
             </div>
           </div>
 

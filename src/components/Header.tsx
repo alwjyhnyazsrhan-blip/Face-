@@ -4,12 +4,12 @@
  */
 
 import React from 'react';
-import { Activity, Cpu, LogIn, User, Wifi, WifiOff, FileText, Camera, ShieldAlert, Sparkles } from 'lucide-react';
+import { Activity, Cpu, LogIn, User, Wifi, WifiOff, FileText, Camera, ShieldAlert, Sparkles, Zap } from 'lucide-react';
 import { ArduinoConnectionStatus, ConnectionType, Language } from '../types';
 
 interface HeaderProps {
-  currentTab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth';
-  setCurrentTab: (tab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth') => void;
+  currentTab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | 'motor_points';
+  setCurrentTab: (tab: 'home' | 'assessment' | 'report' | 'arduino' | 'patients' | 'auth' | 'patent_mask' | 'motor_points') => void;
   lang: Language;
   setLang: (lang: Language) => void;
   arduinoStatus: ArduinoConnectionStatus;
@@ -93,6 +93,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <FileText className="w-4 h-4" />
               <span>{isArabic ? 'التقرير والجرعات' : 'Report & Rx'}</span>
+            </button>
+            <button
+              onClick={() => setCurrentTab('motor_points')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-xl transition-all ${
+                currentTab === 'motor_points'
+                  ? 'bg-[#0d7679] text-white shadow-sm'
+                  : 'text-gray-600 hover:text-[#0d5e5e]'
+              }`}
+            >
+              <Zap className="w-4 h-4 text-amber-400" />
+              <span>{isArabic ? 'نقاط العصب والعلاج' : 'Motor Points & Rx'}</span>
             </button>
             <button
               onClick={() => setCurrentTab('arduino')}
@@ -222,6 +233,12 @@ export const Header: React.FC<HeaderProps> = ({
             className={`px-2 py-1 rounded-lg ${currentTab === 'report' ? 'text-[#0d7679] bg-teal-50' : ''}`}
           >
             {isArabic ? 'التقرير' : 'Report'}
+          </button>
+          <button
+            onClick={() => setCurrentTab('motor_points')}
+            className={`px-2 py-1 rounded-lg ${currentTab === 'motor_points' ? 'text-[#0d7679] bg-teal-50 font-black' : ''}`}
+          >
+            {isArabic ? 'جلسة العلاج' : 'Therapy'}
           </button>
           <button
             onClick={() => setCurrentTab('arduino')}

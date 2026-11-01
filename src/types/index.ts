@@ -83,7 +83,26 @@ export interface AssessmentReport {
 }
 
 export type ArduinoConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
-export type ConnectionType = 'serial' | 'bluetooth';
+export type ConnectionType = 'serial' | 'bluetooth' | 'wifi';
+
+export interface MotorPointDef {
+  id: string;
+  number: number; // 1 - 6
+  nameLatin: string; // e.g. "m. frontalis"
+  nameAr: string; // e.g. "عضلة الجبهة (رفع الحاجبين)"
+  nameEn: string; // "Frontalis (Eyebrow Raise)"
+  exerciseId: string;
+  activeElectrodeRight: string; // "A1-D"
+  refElectrodeRight: string; // "R1-D"
+  activeElectrodeLeft: string; // "A1-S"
+  refElectrodeLeft: string; // "R1-S"
+  muxRightChannel: number; // 0, 2, 4, 6, 8, 10
+  muxLeftChannel: number; // 1, 3, 5, 7, 9, 11
+  suggestedIntensityMA: number;
+  frequencyHz: number;
+  pulseWidthUs: number;
+  laserWavelengthNm: number;
+}
 
 export interface ArduinoTelemetry {
   voltage: number; // Volts
