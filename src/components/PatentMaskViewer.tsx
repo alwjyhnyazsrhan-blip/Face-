@@ -41,7 +41,7 @@ export const PatentMaskViewer: React.FC<PatentMaskViewerProps> = ({
   const figures = {
     1: {
       number: 1,
-      imageSrc: '/assets/aistudio/IMG_20261101_232643_19cd98f2.jpg',
+      imageSrc: '/assets/aistudio/IMG_20261105_172618_9caa34ac.jpg',
       titleAr: 'الشكل (١) - المنظور الأمامي الملون للقناع العلاجي الذكي',
       titleEn: 'Figure (1) - Colored Front Isometric View of Smart Mask',
       descriptionAr: 'المخطط الهندسي الأصلي الملون للشكل (١): يبين الهيكل الخارجي للقناع المكون من نصفي الوجه مع حزام التثبيت (١٠٦)، وزر الطاقة (١٠٣)، ومصفوفة أقطاب التحفيز الكهربائي ومناطق الإضاءة الملونة (أحمر وأزرق)، وثقوب الليزر (١١٤)، وحماية العينين (١٠٤).',
@@ -60,7 +60,7 @@ export const PatentMaskViewer: React.FC<PatentMaskViewerProps> = ({
     },
     2: {
       number: 2,
-      imageSrc: '/assets/aistudio/IMG_20261101_232539_e057fdfc.jpg',
+      imageSrc: '/assets/aistudio/IMG_20261105_172644_2f35dbee.jpg',
       titleAr: 'الشكل (٢) - المنظور الداخلي الملامس لبشرة الوجه',
       titleEn: 'Figure (2) - Internal Skin-Contact View',
       descriptionAr: 'المخطط الهندسي الأصلي الملون للشكل (٢): يوضح الوجه الداخلي الملامس للجلد والمزود بمصفوفات أقطاب التلامس التوصيلية (١٠٨، ١٠٩، ١١٠)، ومشبك التثبيت والإحكام السريع (١١١) مع مناطق الإشعاع الضوئي الملون.',
@@ -74,22 +74,21 @@ export const PatentMaskViewer: React.FC<PatentMaskViewerProps> = ({
     },
     3: {
       number: 3,
-      imageSrc: '/assets/aistudio/patent_figure_3_complete_colored_527688af.jpg',
+      imageSrc: '/assets/aistudio/IMG_20261105_172541_e0b38e63.jpg',
       titleAr: 'الشكل (٣) - المخطط الشامل الملون للقناع ووحدة التحكم (112)',
       titleEn: 'Figure (3) - Complete Colored Assembly & Microcontroller Hub',
-      descriptionAr: 'المخطط الهندسي الأصلي الشامل الملون للشكل (٣): يوضح الهيكل الداخلي المتكامل مع مصفوفات الليزر والتحفيز (١٠٨، ١٠٩)، وموقع لوحة التحكم والدوائر الإلكترونية (١١٢) ومقبس الربط الخارجي وكابل التوصيل (١١٣، ١١٦) المخصص للتوصيل مع كابل الأردوينو ومصدر الطاقة ومولد النبضات.',
-      descriptionEn: 'Original complete colored blueprint of Figure (3): Highlights internal photobiomodulation arrays (108, 109), microcontroller board (112), and interface cable (113, 116) for Arduino/ESP32.',
+      descriptionAr: 'المخطط الهندسي الأصلي الشامل الملون للشكل (٣): يوضح الهيكل الداخلي المتكامل مع مصفوفات الليزر والتحفيز (١٠٨، ١٠٩)، وموقع لوحة التحكم والدوائر الإلكترونية (١١٢) ومقبس الربط الخارجي وكابل التوصيل (١١٣) المخصص للتوصيل مع كابل الأردوينو ومصدر الطاقة ومولد النبضات.',
+      descriptionEn: 'Original complete colored blueprint of Figure (3): Highlights internal photobiomodulation arrays (108, 109), microcontroller board (112), and interface connection (113) for Arduino/ESP32.',
       callouts: [
         '١٠٨، ١٠٩ - مصفوفات الإشعاع الضوئي الموضعي والأقطاب الحركية',
         '١١٢ - لوحة المعالجة والدوائر الإلكترونية (ESP32 / Arduino)',
         '١١٣ - مقبس التوصيل التسلسلي ومصدر التغذية (Serial / USB)',
-        '١١٦ - كابل الربط الخارجي لنقل النبضات والطاقة',
         'توصيل موزع CD74HC4067 ومولد نبضات TENS والعازل PC817',
       ],
     },
     6: {
       number: 6,
-      imageSrc: '/assets/aistudio/IMG_20261101_232613_c51afa49.jpg',
+      imageSrc: '/assets/aistudio/IMG_20261105_172709_6cd4d76f.jpg',
       titleAr: 'الشكل (٦) - المنظور الجانبي والتوزيع التشريحي للأقطاب',
       titleEn: 'Figure (6) - Side View & Anatomical Electrode Node Placement',
       descriptionAr: 'المخطط الهندسي الأصلي الملون للشكل (٦): يبين المنظور الجانبي الدقيق للقناع مع نقاط التماس للأقطاب الكهربائية (١١٥) وثقوب بواعث الليزر (١١٤) المتطابقة تشريحياً مع فروع العصب الوجهي السابع.',

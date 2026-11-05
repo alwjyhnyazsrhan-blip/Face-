@@ -122,3 +122,58 @@ export interface SerialLogEntry {
   direction: 'in' | 'out' | 'system';
   message: string;
 }
+
+export interface DbUserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: 'doctor' | 'clinician' | 'patient' | 'admin';
+  createdAt: string;
+  photoURL?: string;
+}
+
+export interface DbPatient {
+  id: string;
+  ownerId: string;
+  name: string;
+  age?: number;
+  gender?: 'male' | 'female' | 'other';
+  affectedSide: 'right' | 'left' | 'bilateral';
+  onsetDays?: number;
+  houseBrackmannScale?: number;
+  sunnybrookScore?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface DbTherapySession {
+  id: string;
+  patientId: string;
+  userId: string;
+  sessionDate: string;
+  durationMinutes?: number;
+  protocol: string;
+  targetBranches?: string[];
+  motorPoints?: number[];
+  tensIntensityMa?: number;
+  laserDoseJoule?: number;
+  facialSymmetryBefore?: number;
+  facialSymmetryAfter?: number;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface DbAssessment {
+  id: string;
+  patientId: string;
+  userId: string;
+  date: string;
+  restingSymmetry?: number;
+  voluntaryMovementScore?: number;
+  synkinesisScore?: number;
+  totalScore?: number;
+  recommendedProtocol?: string;
+  findings?: string;
+  createdAt: string;
+}

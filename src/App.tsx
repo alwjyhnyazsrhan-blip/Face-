@@ -23,6 +23,7 @@ import {
   ExerciseResult, 
   Language 
 } from './types';
+import { testFirestoreConnection } from './lib/firebase';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('ar');
@@ -49,8 +50,9 @@ export default function App() {
   const [connectionType, setConnectionType] = useState<ConnectionType>(arduinoService.getConnectionType());
   const [activePatientName, setActivePatientName] = useState<string>('');
 
-  // Purge any legacy demo mock data or default demo doctor
+  // Purge any legacy demo mock data and test Firestore connection
   useEffect(() => {
+    testFirestoreConnection();
     try {
       localStorage.removeItem('real_patient_records');
       const stored = localStorage.getItem('auth_doctor');

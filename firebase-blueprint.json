@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile for doctor, clinician or patient",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["doctor", "clinician", "patient", "admin"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "displayName", "role", "createdAt"]
+    },
+    "Patient": {
+      "title": "Patient",
+      "description": "Clinical record for a patient with facial nerve disorder",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "age": { "type": "number" },
+        "gender": { "type": "string", "enum": ["male", "female", "other"] },
+        "affectedSide": { "type": "string", "enum": ["right", "left", "bilateral"] },
+        "onsetDays": { "type": "number" },
+        "houseBrackmannScale": { "type": "number" },
+        "sunnybrookScore": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "ownerId", "name", "affectedSide", "createdAt"]
+    },
+    "TherapySession": {
+      "title": "TherapySession",
+      "description": "Smart Mask & TENS electro-photobiomodulation session record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "patientId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "sessionDate": { "type": "string", "maxLength": 64 },
+        "durationMinutes": { "type": "number" },
+        "protocol": { "type": "string", "maxLength": 128 },
+        "targetBranches": { "type": "array" },
+        "motorPoints": { "type": "array" },
+        "tensIntensityMa": { "type": "number" },
+        "laserDoseJoule": { "type": "number" },
+        "facialSymmetryBefore": { "type": "number" },
+        "facialSymmetryAfter": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "patientId", "userId", "sessionDate", "protocol", "createdAt"]
+    },
+    "Assessment": {
+      "title": "Assessment",
+      "description": "Facial symmetry diagnostic and grading record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "patientId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 64 },
+        "restingSymmetry": { "type": "number" },
+        "voluntaryMovementScore": { "type": "number" },
+        "synkinesisScore": { "type": "number" },
+        "totalScore": { "type": "number" },
+        "recommendedProtocol": { "type": "string", "maxLength": 128 },
+        "findings": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "patientId", "userId", "date", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile documents indexed by user ID"
+    },
+    "/patients/{patientId}": {
+      "schema": { "$ref": "#/entities/Patient" },
+      "description": "Patient records managed by clinicians"
+    },
+    "/therapy_sessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/TherapySession" },
+      "description": "Treatment session logs from the Smart Mask"
+    },
+    "/assessments/{assessmentId}": {
+      "schema": { "$ref": "#/entities/Assessment" },
+      "description": "Diagnostic and facial symmetry clinical assessments"
+    }
+  }
+}

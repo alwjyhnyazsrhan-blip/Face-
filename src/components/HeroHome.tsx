@@ -301,7 +301,7 @@ export const HeroHome: React.FC<HeroHomeProps> = ({
               className="md:col-span-5 bg-white rounded-2xl p-4 border border-teal-100 flex flex-col items-center justify-center cursor-pointer hover:border-teal-300 hover:shadow-md transition-all group"
             >
               <img
-                src="/assets/aistudio/IMG_20261101_232643_19cd98f2.jpg"
+                src="/assets/aistudio/IMG_20261105_172618_9caa34ac.jpg"
                 alt="الشكل 1 - القناع العلاجي الذكي"
                 className="max-h-56 w-auto object-contain group-hover:scale-105 transition-transform"
               />
